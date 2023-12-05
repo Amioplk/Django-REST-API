@@ -5,9 +5,9 @@ from shop.models import Category
 from shop.serializers import CategorySerializer
 
 
-class CategoryAPIView(APIView):
+class CategoryView(APIView):
 
-    def get(self, *args, **kwargs) -> Response:
-        categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True)
+    def get(self, *args, **kwargs):
+        queryset = Category.objects.all()
+        serializer = CategorySerializer(queryset, many=True)
         return Response(serializer.data)
