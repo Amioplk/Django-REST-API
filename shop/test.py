@@ -1,7 +1,7 @@
 from django.urls import reverse_lazy
 from rest_framework.test import APITestCase
 
-from shop.models import Category
+from shop.models import Category, Product
 
 
 class ShopAPITestCase(APITestCase):
@@ -39,3 +39,41 @@ class TestCategory(ShopAPITestCase):
         response = self.client.post(self.url, data={'name': 'Nouvelle Catégorie'})
         self.assertEqual(response.status_code, 405)
         self.assertFalse(Category.objects.exists())  # Double check
+
+
+class TestProduct(ShopAPITestCase):
+    url_list = reverse_lazy('product-list')
+
+    def test_list(self):
+        # Create 1 category and 2 products in this category : one active, the other inactive
+        category = Category.objects.create(name="Fruits", active=True)
+        product = Product.objects.create(name="Pomme", active=True, category=category)
+        Product.objects.create(name="Papaye", active=False, category=category)
+
+        # Make GET call using Test client
+        response = self.client.get(self.url_list)
+        self.assertEqual(response.status_code, 200)
+        excepted = [
+            {
+                'id': product.pk,
+                'date_created': self.format_datetime(product.date_created),
+                'date_updated': self.format_datetime(product.date_updated),
+                'name': product.name,
+                'category': product.category.id,  # Foreign Key
+            },
+        ]
+        self.assertEqual(excepted, response.json())
+
+    def test_create(self):
+        # Check no product exists (in the test client)
+        self.assertFalse(Product.objects.exists())
+
+        # Check one cannot create a product from the public API
+        category = Category.objects.create(name="Fruits", active=True)
+        response = self.client.post(self.url_list, data={'name': 'Nouveau Produit', 'category': category})
+        self.assertEqual(response.status_code, 405)
+        self.assertFalse(Product.objects.exists())  # Double check
+
+    # TODO: Create a test for active products in inactive Category
+    # TODO: assess if possible to create the category as a class attribute
+    # TODO: Create a test for details on a non-existing product
