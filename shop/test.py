@@ -4,12 +4,14 @@ from rest_framework.test import APITestCase
 from shop.models import Category
 
 
-class TestCategory(APITestCase):
-    url = reverse_lazy('category-list')  # completion done by the router
-
+class ShopAPITestCase(object):
     @staticmethod
     def format_datetime(value):
         return value.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+class TestCategory(APITestCase):
+    url = reverse_lazy('category-list')  # completion done by the router
 
     def test_list(self):
         # Create 2 categories : one active, the other inactive
@@ -23,8 +25,8 @@ class TestCategory(APITestCase):
             {
                 'id': category.pk,  # Primary Key
                 'name': category.name,
-                'date_created': TestCategory.format_datetime(category.date_created),
-                'date_updated': TestCategory.format_datetime(category.date_updated),
+                'date_created': ShopAPITestCase.format_datetime(category.date_created),
+                'date_updated': ShopAPITestCase.format_datetime(category.date_updated),
             },
         ]
         self.assertEqual(excepted, response.json())
