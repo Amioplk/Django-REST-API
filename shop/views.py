@@ -1,12 +1,10 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from shop.models import Category, Product
-from shop.serializers import CategorySerializer, ProductSerializer
+from shop.models import Category, Product, Article
+from shop.serializers import CategorySerializer, ProductSerializer, ArticleSerializer
+
 
 class ProductViewSet(ReadOnlyModelViewSet):
-
     serializer_class = ProductSerializer
 
     def get_queryset(self):
@@ -21,6 +19,26 @@ class ProductViewSet(ReadOnlyModelViewSet):
         force_inactive = self.request.GET.get('force_inactive')
         if force_inactive is None:
             queryset = queryset.filter(active=True)
+
+        return queryset
+
+
+class ArticleViewSet(ReadOnlyModelViewSet):
+    serializer_class = ArticleSerializer
+
+    def get_queryset(self):
+        queryset = Article.objects.all()
+
+        # Resolve product_id if present
+        product_id = self.request.GET.get('category_id')
+        if product_id is not None:
+            queryset = queryset.filter(product=product_id)
+
+        # Resolve force_inactive if present
+        force_inactive = self.request.GET.get('force_inactive')
+        if force_inactive is None:
+            queryset = queryset.filter(active=True)
+
         return queryset
 
 
@@ -35,5 +53,3 @@ class CategoryViewSet(ReadOnlyModelViewSet):
         if force_inactive is None:
             queryset = queryset.filter(active=True)
         return queryset
-
-
