@@ -72,7 +72,7 @@ class TestProduct(ShopAPITestCase):
 
     def test_create(self):
         product_count = Product.objects.count()
-        response = self.client.post(self.url, data={'name': 'Nouvelle catégorie'})
+        response = self.client.post(self.url, data={'name': 'Nouveau produit'})
         self.assertEqual(response.status_code, 405)
         self.assertEqual(Product.objects.count(), product_count)
 
