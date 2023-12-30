@@ -30,10 +30,10 @@ class TestCategory(APITestCase):
         self.assertEqual(excepted, response.json())
 
     def test_create(self):
-        # Check no category exists
+        # Check no category exists (in the test client)
         self.assertFalse(Category.objects.exists())
 
         # Check one cannot create a category from the public API
         response = self.client.post(self.url, data={'name': 'Nouvelle Catégorie'})
         self.assertEqual(response.status_code, 405)
-        self.assertFalse(Category.objects.exists())
+        self.assertFalse(Category.objects.exists())  # Double check
